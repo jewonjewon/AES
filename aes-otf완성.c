@@ -122,7 +122,6 @@ void otfKeyExpansion(uint8_t* key, int n) {
     rk[3] = tt32[3] ^ rk[2];
 
     wordToByte(rk, key, 4);
-    // show8(key);
 }
 
 
