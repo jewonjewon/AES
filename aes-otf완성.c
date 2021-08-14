@@ -82,7 +82,6 @@ void rotWord(uint32_t* temp) {
     *temp = *temp | t;
 }
 
-
 void subWord(uint32_t* temp) {
 
     uint8_t tt[4] = { 0, };
@@ -101,7 +100,7 @@ void subWord(uint32_t* temp) {
 
 void otfKeyExpansion(uint8_t* key, int n) {
     if(n == 0){
-        //show8(key);
+        // show8(key);
         return;
     }
 
@@ -123,9 +122,42 @@ void otfKeyExpansion(uint8_t* key, int n) {
     rk[3] = tt32[3] ^ rk[2];
 
     wordToByte(rk, key, 4);
-    //show8(key);
+    // show8(key);
 }
 
+
+void otfDecKeyExpansion(uint8_t* key, int n) {
+
+    if(n ==10){
+        for(int j = 0;j <11;j++)
+            otfKeyExpansion(key, j);        
+        return;
+    }
+
+    uint32_t rk[4] = {0, };
+    uint32_t tt32[4] = {0, };
+    uint32_t t = 0;
+
+    byteToWord(key, tt32, 4);
+
+    rk[3] = tt32[3] ^ tt32[2];
+    rk[2] = tt32[2] ^ tt32[1];
+    rk[1] = tt32[1] ^ tt32[0];
+
+    t = rk[3];
+    rotWord(&t);
+    subWord(&t);
+    t = t ^ rcon[n];
+
+    rk[0] = tt32[0] ^ t;
+
+    // printf("w[0]: %08x\n", rk[0]);
+    // printf("w[1]: %08x\n", rk[1]);
+    // printf("w[2]: %08x\n", rk[2]);
+    // printf("w[3]: %08x\n", rk[3]);
+
+    wordToByte(rk, key, 4);
+}
 
 uint32_t x_time(uint32_t x) {
 
@@ -196,7 +228,7 @@ void encrypt8(uint8_t* rk8, uint8_t* a){
         addRoundKey(rk, a);
 }
 
-/*
+
 void invShiftRows(uint8_t* ciphertext) {
     uint8_t t[16] = { 0, };
 
@@ -228,34 +260,27 @@ void invMixColumns(uint8_t* plaintext) {
 }
 
 void decrypt8(uint8_t* rk8, uint8_t* a){
-    addRoundKey(a, rk8, 10);
-    // show8(a);
+    uint8_t rk[16] = {0, };
+
+    for(int j = 0; j<16 ; j++)
+    rk[j] = rk8[j];
+
+    otfDecKeyExpansion(rk, 10);
+    addRoundKey(rk, a);
 
     for (int r = 9; r > 0; r--) {
         invShiftRows(a);
-        // show8(a);
-
         invSubBytes(a);
-        // show8(a);
-
-        addRoundKey(a, rk8, r);
-        // show8(a);
-
+        otfDecKeyExpansion(rk, r);
+        addRoundKey(rk, a);
         invMixColumns(a);
-        // show8(a);
     }
-
     invShiftRows(a);
-        // show8(a);
-
     invSubBytes(a);
-        // show8(a);
-
-    addRoundKey(a, rk8, 0);
-        // show8(a);
-
+    otfDecKeyExpansion(rk, 0);
+    addRoundKey(rk, a);
 }
-*/
+
 int main(){
 
     double start = 0;
@@ -264,20 +289,10 @@ int main(){
     // 파라미터
     uint8_t k[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
     uint8_t a[16] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
-
     // 파라미터
-
-    uint32_t rk32[80] = { 0, };
-    uint8_t rk8[3000] = { 0, };
-
-    // keyExpansion(k, rk32, 16);
-    // wordToByte(rk32, rk8, 44);
-    
-    start = (double)clock() / CLOCKS_PER_SEC;
 
 /*
     printf("암호문\n");
-
         for(int j = 0;j<16;j++){
             t[j] = a[j];
             printf("%02x", t[j]);
@@ -285,20 +300,25 @@ int main(){
     printf("\n");
 */
 
-for (int j = 0; j<1;j++){
     encrypt8(k, a);
+
+    printf("암호문\n");
+    for(int j = 0;j<16;j++)
+        printf("%02x", a[j]);
+    printf("\n");
+  
+    start = (double)clock() / CLOCKS_PER_SEC;
+for (int j = 0; j<1000000;j++){
+    decrypt8(k, a);
 }
     end = (((double)clock()) / CLOCKS_PER_SEC);
 
-    printf("평문\n");
+    // printf("평문\n");
 
-        for(int j = 0;j<16;j++)
-            printf("%02x", a[j]);
+    //     for(int j = 0;j<16;j++)
+    //         printf("%02x", a[j]);
         
-    printf("\n");
-
-
-//decrypt8(rk8, a);
+    // printf("\n");
 
     printf("프로그램 수행 시간 :%lf\n", (end-start));
     return 0;
