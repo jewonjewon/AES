@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "wmmintrin.h": "c",
+        "__wmmintrin_aes.h": "c",
+        "emmintrin.h": "c",
+        "__wmmintrin_pclmul.h": "c"
+    }
+}
