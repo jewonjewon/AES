@@ -270,7 +270,7 @@ int main(){
     printf("\n");
 */
 
-for (int j = 0; j<1000000;j++){
+for (int j = 0; j<1;j++){
     encrypt8(rk8, a);
 }
     end = (((double)clock()) / CLOCKS_PER_SEC);
