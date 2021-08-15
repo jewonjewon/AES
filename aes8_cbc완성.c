@@ -311,7 +311,7 @@ void decrypt8_cbc(uint8_t *k, uint8_t *a, uint8_t *IV, uint8_t n)
             c[i] = c[16 + i];
             c[16 + i] = a[i + 16 * j];
         }
-
+        //s
         decrypt8(k, a + 16 * j);
 
         for (int i = 0; i < 16; i++)
