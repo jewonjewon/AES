@@ -266,44 +266,28 @@ void decrypt8(uint8_t *rk8, uint8_t *a)
     addRoundKey(a, rk8, 0);
     // show8(a);
 }
-// 운용모드(ofb mode)
-void encrypt8_ofb(uint8_t *k, uint8_t *a, uint8_t *IV, uint8_t n)
-{
-    uint8_t t[16] = {
-        0,
-    };
 
-    for (int j = 0; j < 16; j++)
-        t[j] = IV[j];
-
-    for (int j = 0; j < n; j++)
-    {
-        encrypt8(k, t);
-
-        for (int i = 0; i < 16; i++)
-            *(a + (16 * j + i)) = *(a + (16 * j + i)) ^ t[i];
-    }
-}
-
-// end 운용모드(ofb mode)
 int main()
 {
 
-    double start = 0;
-    double end = 0;
+    double start1 = 0;
+    double end1 = 0;
+    double start2 = 0;
+    double end2 = 0;
+    double start3 = 0;
+    double end3 = 0;
+    double start4 = 0;
+    double end4 = 0;
 
     // 파라미터
     uint8_t k[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
-
-    uint8_t a[160] = {
-        0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a,
-        0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c, 0x9e, 0xb7, 0x6f, 0xac, 0x45, 0xaf, 0x8e, 0x51,
-        0x30, 0xc8, 0x1c, 0x46, 0xa3, 0x5c, 0xe4, 0x11, 0xe5, 0xfb, 0xc1, 0x19, 0x1a, 0x0a, 0x52, 0xef,
-        0xf6, 0x9f, 0x24, 0x45, 0xdf, 0x4f, 0x9b, 0x17, 0xad, 0x2b, 0x41, 0x7b, 0xe6, 0x6c, 0x37, 0x10};
-
-    uint8_t IV[16] = {
-        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
-    // 파라미터
+    uint8_t a[16] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
+    uint8_t t[16] = {
+        0x0,
+    }; // t: 암호화 후 암호문 블록 임시 저장 변수
+    uint8_t tt[16] = {
+        0x0,
+    }; // tt: 복호화 후 평문블록 임시 저장 변수
 
     uint32_t rk32[80] = {
         0,
@@ -312,42 +296,33 @@ int main()
         0,
     };
 
-    keyExpansion(k, rk32, 16);
-    wordToByte(rk32, rk8, 44);
+    // 파라미터
 
-    start = (double)clock() / CLOCKS_PER_SEC;
+    start1 = (double)clock() / CLOCKS_PER_SEC;
 
-    uint8_t blknum = sizeof(a) / 16;
-    printf("block num: %d\n", blknum);
-
-    encrypt8_ofb(rk8, a, IV, 4);
-
-    end = (((double)clock()) / CLOCKS_PER_SEC);
-
-    // show state
-    printf("평문\n");
-    for (int j = 0; j < 16 * blknum; j++)
+    start4 = (double)clock() / CLOCKS_PER_SEC;
+    for (int j = 0; j < 1000000; j++)
     {
-        printf("%02x", a[j]);
-        if (j % 16 == 15)
-            printf("\n");
+        keyExpansion(k, rk32, 16);
+        wordToByte(rk32, rk8, 44);
     }
-    printf("\n");
-    // end show
+    end4 = (((double)clock()) / CLOCKS_PER_SEC);
 
-    encrypt8_ofb(rk8, a, IV, 4);
+    start2 = (double)clock() / CLOCKS_PER_SEC;
+    for (int j = 0; j < 1000000; j++)
+        encrypt8(rk8, a);
+    end2 = (((double)clock()) / CLOCKS_PER_SEC);
 
-    // show state
-    printf("평문\n");
-    for (int j = 0; j < 16 * blknum; j++)
-    {
-        printf("%02x", a[j]);
-        if (j % 16 == 15)
-            printf("\n");
-    }
-    printf("\n");
-    // // end show
+    start3 = (double)clock() / CLOCKS_PER_SEC;
+    for (int j = 0; j < 1000000; j++)
+        decrypt8(rk8, a);
+    end3 = (((double)clock()) / CLOCKS_PER_SEC);
 
-    printf("프로그램 수행 시간 :%lf\n", (end - start));
+    end1 = (((double)clock()) / CLOCKS_PER_SEC);
+
+    printf("저언체 수행 시간 :%lf\n", (end1 - start1));
+    printf("암호화 수행 시간 :%lf\n", (end2 - start2));
+    printf("복호화 수행 시간 :%lf\n", (end3 - start3));
+    printf("키생성 수행 시간 :%lf\n", (end4 - start4));
     return 0;
 }
