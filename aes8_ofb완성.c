@@ -266,58 +266,26 @@ void decrypt8(uint8_t *rk8, uint8_t *a)
     addRoundKey(a, rk8, 0);
     // show8(a);
 }
-// 운용모드(ecb mode)
-void encrypt8_cbc(uint8_t *k, uint8_t *IV, uint8_t *a, uint8_t n)
+// 운용모드(ofb mode)
+void encrypt8_ofb(uint8_t *k, uint8_t *a, uint8_t *IV, uint8_t n)
 {
-    uint8_t c[16] = {
+    uint8_t t[16] = {
         0,
     };
 
     for (int j = 0; j < 16; j++)
-        c[j] = IV[j];
+        t[j] = IV[j];
 
     for (int j = 0; j < n; j++)
     {
-        for (int i = 0; i < 16; i++)
-            c[i] = *(a + (16 * j + i)) ^ c[i];
+        encrypt8(k, t);
 
-        encrypt8(k, c);
         for (int i = 0; i < 16; i++)
-            *(a + (16 * j + i)) = c[i];
+            *(a + (16 * j + i)) = *(a + (16 * j + i)) ^ t[i];
     }
 }
 
-void decrypt8_cbc(uint8_t *k, uint8_t *IV, uint8_t *a, uint8_t n)
-{
-    uint8_t c[32] = {
-        0,
-    };
-
-    for (int j = 0; j < 16; j++)
-        c[j] = IV[j];
-
-    for (int j = 16; j < 32; j++)
-        c[j] = a[j];
-
-    decrypt8(k, a);
-
-    for (int i = 0; i < 16; i++)
-        *(a + i) = *(a + i) ^ c[i];
-
-    for (int j = 1; j < n; j++)
-    {
-        for (int i = 0; i < 16; i++)
-        {
-            c[i] = c[16 + i];
-            c[16 + i] = a[i + 16 * j];
-        }
-        decrypt8(k, a + 16 * j);
-
-        for (int i = 0; i < 16; i++)
-            *(a + (16 * j + i)) = *(a + (16 * j + i)) ^ c[i];
-    }
-}
-// end 운용모드(ecb mode)
+// end 운용모드(ofb mode)
 int main()
 {
 
@@ -352,7 +320,7 @@ int main()
     uint8_t blknum = sizeof(a) / 16;
     printf("block num: %d\n", blknum);
 
-    encrypt8_cbc(rk8, IV, a, 4);
+    encrypt8_ofb(rk8, a, IV, 4);
 
     end = (((double)clock()) / CLOCKS_PER_SEC);
 
@@ -367,7 +335,7 @@ int main()
     printf("\n");
     // end show
 
-    decrypt8_cbc(rk8, IV, a, 4);
+    encrypt8_ofb(rk8, a, IV, 4);
 
     // show state
     printf("평문\n");
@@ -378,7 +346,7 @@ int main()
             printf("\n");
     }
     printf("\n");
-    // end show
+    // // end show
 
     printf("프로그램 수행 시간 :%lf\n", (end - start));
     return 0;
