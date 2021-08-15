@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <time.h>
 
 static const uint32_t rcon[] = {
     0x01000000,
@@ -49,6 +50,14 @@ static const uint8_t inv_sbox[256] = {
     0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef,
     0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
     0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d};
+
+void show8(uint8_t *a)
+{
+    printf("block: ");
+    for (int j = 0; j < 16; j++)
+        printf("%02x", a[j]);
+    printf("\n");
+}
 
 void rotWord(uint32_t *temp)
 {
@@ -175,61 +184,160 @@ void mixColumns(uint8_t *plaintext)
         plaintext[j] = t[j];
 }
 
+void encrypt8(uint8_t *rk8, uint8_t *a)
+{
+    addRoundKey(a, rk8, 0);
+
+    for (int j = 1; j < 10; j++)
+    {
+        subBytes(a);
+        shiftRows(a);
+        mixColumns(a);
+        addRoundKey(a, rk8, j);
+    }
+    subBytes(a);
+    shiftRows(a);
+    addRoundKey(a, rk8, 10);
+}
+
+void invShiftRows(uint8_t *ciphertext)
+{
+    uint8_t t[16] = {
+        0,
+    };
+
+    for (int j = 0; j < 16; j++)
+        t[j] = ciphertext[j];
+
+    for (int j = 0; j < 16; j++)
+        ciphertext[j] = t[(13 * j) % 16];
+}
+
+void invSubBytes(uint8_t ciphertext[])
+{
+    for (int j = 0; j < 16; j++)
+        ciphertext[j] = inv_sbox[ciphertext[j]];
+}
+
+void invMixColumns(uint8_t *plaintext)
+{
+
+    uint8_t t[16] = {
+        0,
+    };
+
+    for (int j = 0; j < 4; j++)
+    {
+        t[4 * j + 0] = (x_time((x_time(x_time(plaintext[4 * j + 0]) ^ plaintext[4 * j + 0])) ^ plaintext[4 * j + 0])) ^ (x_time(x_time(x_time(plaintext[4 * j + 1])) ^ plaintext[4 * j + 1]) ^ plaintext[4 * j + 1]) ^ (x_time(x_time(x_time(plaintext[4 * j + 2]) ^ plaintext[4 * j + 2])) ^ plaintext[4 * j + 2]) ^ (x_time(x_time(x_time(plaintext[4 * j + 3]))) ^ plaintext[4 * j + 3]);
+        t[4 * j + 1] = (x_time(x_time(x_time(plaintext[4 * j + 0]))) ^ plaintext[4 * j + 0]) ^ (x_time((x_time(x_time(plaintext[4 * j + 1]) ^ plaintext[4 * j + 1])) ^ plaintext[4 * j + 1])) ^ (x_time(x_time(x_time(plaintext[4 * j + 2])) ^ plaintext[4 * j + 2]) ^ plaintext[4 * j + 2]) ^ (x_time(x_time(x_time(plaintext[4 * j + 3]) ^ plaintext[4 * j + 3])) ^ plaintext[4 * j + 3]);
+        t[4 * j + 2] = (x_time(x_time(x_time(plaintext[4 * j + 0]) ^ plaintext[4 * j + 0])) ^ plaintext[4 * j + 0]) ^ (x_time(x_time(x_time(plaintext[4 * j + 1]))) ^ plaintext[4 * j + 1]) ^ (x_time((x_time(x_time(plaintext[4 * j + 2]) ^ plaintext[4 * j + 2])) ^ plaintext[4 * j + 2])) ^ (x_time(x_time(x_time(plaintext[4 * j + 3])) ^ plaintext[4 * j + 3]) ^ plaintext[4 * j + 3]);
+        t[4 * j + 3] = (x_time(x_time(x_time(plaintext[4 * j + 0])) ^ plaintext[4 * j + 0]) ^ plaintext[4 * j + 0]) ^ (x_time(x_time(x_time(plaintext[4 * j + 1]) ^ plaintext[4 * j + 1])) ^ plaintext[4 * j + 1]) ^ (x_time(x_time(x_time(plaintext[4 * j + 2]))) ^ plaintext[4 * j + 2]) ^ (x_time((x_time(x_time(plaintext[4 * j + 3]) ^ plaintext[4 * j + 3])) ^ plaintext[4 * j + 3]));
+    }
+    for (int j = 0; j < 16; j++)
+        plaintext[j] = t[j];
+}
+
+void decrypt8(uint8_t *rk8, uint8_t *a)
+{
+    addRoundKey(a, rk8, 10);
+    // show8(a);
+
+    for (int r = 9; r > 0; r--)
+    {
+        invShiftRows(a);
+        // show8(a);
+
+        invSubBytes(a);
+        // show8(a);
+
+        addRoundKey(a, rk8, r);
+        // show8(a);
+
+        invMixColumns(a);
+        // show8(a);
+    }
+
+    invShiftRows(a);
+    // show8(a);
+
+    invSubBytes(a);
+    // show8(a);
+
+    addRoundKey(a, rk8, 0);
+    // show8(a);
+}
+// 운용모드(ecb mode)
+void encrypt8_ecb(uint8_t *k, uint8_t *a, uint8_t n)
+{
+    for (int j = 0; j < n; j++)
+        encrypt8(k, a + 16 * j);
+}
+
+void decrypt8_ecb(uint8_t *k, uint8_t *a, uint8_t n)
+{
+    for (int j = 0; j < n; j++)
+        decrypt8(k, a + 16 * j);
+}
+// end 운용모드(ecb mode)
 int main()
 {
 
+    double start = 0;
+    double end = 0;
+
     // 파라미터
-    uint8_t a[16] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
     uint8_t k[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+
+    uint8_t a[160] = {
+        0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34,
+        0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34,
+        0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34,
+        0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff};
+
+    // 파라미터
+
     uint32_t rk32[80] = {
         0,
     };
     uint8_t rk8[3000] = {
         0,
     };
-    // 파라미터
 
-    // key schedule
     keyExpansion(k, rk32, 16);
     wordToByte(rk32, rk8, 44);
 
-    // end keyschedule
+    start = (double)clock() / CLOCKS_PER_SEC;
 
-    addRoundKey(a, k, 0);
+    uint8_t blknum = sizeof(a) / 16;
+    printf("block num: %d\n", blknum);
+    encrypt8_ecb(rk8, a, blknum);
 
-    printf("Initial Round\n");
-    for (int j = 0; j < 16; j++)
-        printf("%02x", a[j]);
-    printf("\n");
+    end = (((double)clock()) / CLOCKS_PER_SEC);
 
-    subBytes(a);
+    // show state
+    // printf("평문\n");
+    // for (int j = 0; j < 16 * blknum; j++)
+    // {
+    //     printf("%02x", a[j]);
+    //     if (j % 16 == 15)
+    //         printf("\n");
+    // }
+    // printf("\n");
+    // end show
 
-    printf("1-Round SubBytes\n");
-    for (int j = 0; j < 16; j++)
-        printf("%02x", a[j]);
-    printf("\n");
+    decrypt8_ecb(rk8, a, blknum);
 
-    shiftRows(a);
+    // show state
+    // printf("평문\n");
+    // for (int j = 0; j < 16 * blknum; j++)
+    // {
+    //     printf("%02x", a[j]);
+    //     if (j % 16 == 15)
+    //         printf("\n");
+    // }
+    // printf("\n");
+    // end show
 
-    printf("1-Round ShiftRows\n");
-    for (int j = 0; j < 16; j++)
-        printf("%02x", a[j]);
-    printf("\n");
-
-    mixColumns(a);
-
-    printf("1-Round MixColumns\n");
-    for (int j = 0; j < 16; j++)
-        printf("%02x", a[j]);
-    printf("\n");
-
-    addRoundKey(a, rk8, 1);
-
-    printf("2-Round\n");
-
-    for (int j = 0; j < 16; j++)
-        printf("%02x", a[j]);
-    printf("\n");
-
+    printf("프로그램 수행 시간 :%lf\n", (end - start));
     return 0;
 }
