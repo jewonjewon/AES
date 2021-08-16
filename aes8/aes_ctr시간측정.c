@@ -128,15 +128,10 @@ void wordToByte(uint32_t *input, uint8_t *output, uint8_t wordnum)
         output[j] = ((input[j / 4] >> (24 - ((j % 4) * 8)))) & 0xff;
 }
 
+// 8비트 말고 32비트로 처리 시 백만번 수행 기준 0.4초 더 빠름
 uint32_t x_time(uint32_t x)
 {
-
-    x = x * 0x02;
-
-    if (x > 0xff)
-        return (x & 0xff) ^ 0x1b;
-    else
-        return x;
+    return ((x << 1) ^ (((x >> 7) & 1) * 0x1b));
 }
 
 ////////////////////////////// round function ///////////////////////////////////////
@@ -292,7 +287,7 @@ void CTR(uint8_t *t)
 }
 
 // 운용모드(ctr mode)
-void encrypt8_ctr(uint8_t *k, uint8_t *a, uint8_t *IV, uint8_t n)
+void encrypt8_ctr(uint8_t *k, uint8_t *IV, uint8_t *a, uint8_t n)
 {
     uint8_t ctr[16] = {
         0,
@@ -490,7 +485,9 @@ int main()
     end3 = (((double)clock()) / CLOCKS_PER_SEC);
 
     end1 = (((double)clock()) / CLOCKS_PER_SEC);
-
+    // // // print test
+    // for (int j = 0; j < blknum; j++)
+    //     show8(a + 16 * j);
     printf("저언체 수행 시간 :%lf\n", (end1 - start1));
     printf("암호화 수행 시간 :%lf\n", (end2 - start2));
     printf("복호화 수행 시간 :%lf\n", (end3 - start3));
