@@ -127,16 +127,10 @@ void wordToByte(uint32_t *input, uint8_t *output, uint8_t wordnum)
     for (int j = 0; j < (4 * wordnum); j++)
         output[j] = ((input[j / 4] >> (24 - ((j % 4) * 8)))) & 0xff;
 }
-
+// 8비트 말고 32비트로 처리 시 백만번 수행 기준 0.4초 더 빠름
 uint32_t x_time(uint32_t x)
 {
-
-    x = x * 0x02;
-
-    if (x > 0xff)
-        return (x & 0xff) ^ 0x1b;
-    else
-        return x;
+    return ((x << 1) ^ (((x >> 7) & 1) * 0x1b));
 }
 
 ////////////////////////////// round function ///////////////////////////////////////
@@ -312,12 +306,21 @@ int main()
     for (int j = 0; j < 1000000; j++)
         encrypt8(rk8, a);
     end2 = (((double)clock()) / CLOCKS_PER_SEC);
+    printf("ciphertext \n");
 
+    for (int j = 0; j < 16; j++)
+        printf("%02x", a[j]);
+    printf("\n");
     start3 = (double)clock() / CLOCKS_PER_SEC;
     for (int j = 0; j < 1000000; j++)
         decrypt8(rk8, a);
     end3 = (((double)clock()) / CLOCKS_PER_SEC);
 
+    printf("plaintext \n");
+
+    for (int j = 0; j < 16; j++)
+        printf("%02x", a[j]);
+    printf("\n");
     end1 = (((double)clock()) / CLOCKS_PER_SEC);
 
     printf("저언체 수행 시간 :%lf\n", (end1 - start1));

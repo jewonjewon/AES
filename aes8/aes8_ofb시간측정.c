@@ -128,15 +128,10 @@ void wordToByte(uint32_t *input, uint8_t *output, uint8_t wordnum)
         output[j] = ((input[j / 4] >> (24 - ((j % 4) * 8)))) & 0xff;
 }
 
+// 8비트 말고 32비트로 처리 시 백만번 수행 기준 0.4초 더 빠름
 uint32_t x_time(uint32_t x)
 {
-
-    x = x * 0x02;
-
-    if (x > 0xff)
-        return (x & 0xff) ^ 0x1b;
-    else
-        return x;
+    return ((x << 1) ^ (((x >> 7) & 1) * 0x1b));
 }
 
 ////////////////////////////// round function ///////////////////////////////////////
@@ -267,7 +262,7 @@ void decrypt8(uint8_t *rk8, uint8_t *a)
     // show8(a);
 }
 // 운용모드(ofb mode)
-void encrypt8_ofb(uint8_t *k, uint8_t *a, uint8_t *IV, uint8_t n)
+void encrypt8_ofb(uint8_t *k, uint8_t *IV, uint8_t *a, uint8_t n)
 {
     uint8_t t[16] = {
         0,
@@ -278,10 +273,17 @@ void encrypt8_ofb(uint8_t *k, uint8_t *a, uint8_t *IV, uint8_t n)
 
     for (int j = 0; j < n; j++)
     {
+        // printf("Input  ");
+        // show8(t);
         encrypt8(k, t);
-
+        // printf("Output ");
+        // show8(t);
+        // printf("plain  ");
+        // show8(a);
         for (int i = 0; i < 16; i++)
             *(a + (16 * j + i)) = *(a + (16 * j + i)) ^ t[i];
+        // printf("cipher ");
+        // show8(a);
     }
 }
 
@@ -410,7 +412,6 @@ int main()
 
     uint64_t blknum = sizeof(a) / 16;
     printf("block num: %llu\n", blknum);
-
     double start1 = 0;
     double end1 = 0;
     double start2 = 0;
@@ -448,3 +449,11 @@ int main()
     printf("키생성 수행 시간 :%lf\n", (end4 - start4));
     return 0;
 }
+
+/*
+    uint8_t a[1600] = {
+        0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a,
+        0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c, 0x9e, 0xb7, 0x6f, 0xac, 0x45, 0xaf, 0x8e, 0x51,
+        0x30, 0xc8, 0x1c, 0x46, 0xa3, 0x5c, 0xe4, 0x11, 0xe5, 0xfb, 0xc1, 0x19, 0x1a, 0x0a, 0x52, 0xef,
+        0xf6, 0x9f, 0x24, 0x45, 0xdf, 0x4f, 0x9b, 0x17, 0xad, 0x2b, 0x41, 0x7b, 0xe6, 0x6c, 0x37, 0x10};
+*/
