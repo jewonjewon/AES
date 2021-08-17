@@ -385,6 +385,7 @@ int main()
     // print test
     for (int j = 0; j < blknum; j++)
         show8(a + 16 * j);
+    printf("\n");
 
     printf("저언체 수행 시간 :%lf\n", (end1 - start1));
     printf("암호화 수행 시간 :%lf\n", (end2 - start2));
