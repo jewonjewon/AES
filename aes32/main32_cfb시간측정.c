@@ -1216,13 +1216,7 @@ static const uint8_t inv_sbox[256] = {
 
 uint32_t x_time(uint32_t x)
 {
-
-    x = x * 0x02;
-
-    if (x > 0xff)
-        return (x & 0xff) ^ 0x1b;
-    else
-        return x;
+    return ((x << 1) ^ (((x >> 7) & 1) * 0x1b));
 }
 
 void show32(uint32_t *a32)
@@ -1241,6 +1235,7 @@ void rotWord(uint32_t *temp)
     t = *temp >> 24;
     *temp = *temp << 8;
     *temp = *temp | t;
+    5
 }
 
 void subWord(uint32_t *temp)
