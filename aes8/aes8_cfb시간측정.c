@@ -460,7 +460,7 @@ int main()
     start1 = (double)clock() / CLOCKS_PER_SEC;
 
     start4 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 1000; j++)
+    for (int j = 0; j < 10000; j++)
     {
         keyExpansion(k, rk32, 16);
         wordToByte(rk32, rk8, 44);
@@ -468,7 +468,7 @@ int main()
     end4 = (((double)clock()) / CLOCKS_PER_SEC);
 
     start2 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 1000; j++)
+    for (int j = 0; j < 10000; j++)
         encrypt8_cfb(rk8, IV, a, blknum);
     end2 = (((double)clock()) / CLOCKS_PER_SEC);
 
@@ -477,7 +477,7 @@ int main()
     //     show8(a + 16 * j);
 
     start3 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 1000; j++)
+    for (int j = 0; j < 10000; j++)
         decrypt8_cfb(rk8, IV, a, blknum);
     end3 = (((double)clock()) / CLOCKS_PER_SEC);
 

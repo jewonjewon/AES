@@ -446,7 +446,7 @@ int main()
     start1 = (double)clock() / CLOCKS_PER_SEC;
 
     start4 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 1000; j++)
+    for (int j = 0; j < 10000; j++)
     {
         keyExpansion(k, rk32, 16);
         wordToByte(rk32, rk8, 44);
@@ -454,26 +454,26 @@ int main()
     end4 = (((double)clock()) / CLOCKS_PER_SEC);
 
     start2 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 1000; j++)
+    for (int j = 0; j < 10000; j++)
         encrypt8_cbc(rk8, IV, a, blknum);
     end2 = (((double)clock()) / CLOCKS_PER_SEC);
 
     // print test
-    for (int j = 0; j < blknum; j++)
-        show8(a + 16 * j);
-    printf("\n");
+    // for (int j = 0; j < blknum; j++)
+    //     show8(a + 16 * j);
+    // printf("\n");
 
     start3 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 1000; j++)
+    for (int j = 0; j < 10000; j++)
         decrypt8_cbc(rk8, IV, a, blknum);
     end3 = (((double)clock()) / CLOCKS_PER_SEC);
 
     end1 = (((double)clock()) / CLOCKS_PER_SEC);
 
     // print test
-    for (int j = 0; j < blknum; j++)
-        show8(a + 16 * j);
-    printf("\n");
+    // for (int j = 0; j < blknum; j++)
+    //     show8(a + 16 * j);
+    // printf("\n");
 
     printf("저언체 수행 시간 :%lf\n", (end1 - start1));
     printf("암호화 수행 시간 :%lf\n", (end2 - start2));

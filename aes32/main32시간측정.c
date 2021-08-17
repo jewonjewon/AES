@@ -1477,7 +1477,7 @@ int main()
 
     start4 = (double)clock() / CLOCKS_PER_SEC;
     // 입력블록 확장 : 8-bit → 32-bit
-    for (int j = 0; j < 100000; j++)
+    for (int j = 0; j < 1000000; j++)
     {
         byteToWord(a, a32, 4);
         keyExpansion(k, rk32, 16);
@@ -1485,12 +1485,12 @@ int main()
     end4 = (((double)clock()) / CLOCKS_PER_SEC);
 
     start2 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 100000; j++)
+    for (int j = 0; j < 1000000; j++)
         encrypt32(rk32, a32);
     end2 = (((double)clock()) / CLOCKS_PER_SEC);
 
     start3 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 100000; j++)
+    for (int j = 0; j < 1000000; j++)
     {
         deckeyset(rk32);
         decrypt32(rk32, a32);
