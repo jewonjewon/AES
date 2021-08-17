@@ -1235,7 +1235,6 @@ void rotWord(uint32_t *temp)
     t = *temp >> 24;
     *temp = *temp << 8;
     *temp = *temp | t;
-    5
 }
 
 void subWord(uint32_t *temp)
