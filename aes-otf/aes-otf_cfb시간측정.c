@@ -179,15 +179,10 @@ void otfDecKeyExpansion(uint8_t *key, int n)
     wordToByte(rk, key, 4);
 }
 
+// 8비트 말고 32비트로 처리 시 백만번 수행 기준 0.4초 더 빠름
 uint32_t x_time(uint32_t x)
 {
-
-    x = x * 0x02;
-
-    if (x > 0xff)
-        return (x & 0xff) ^ 0x1b;
-    else
-        return x;
+    return ((x << 1) ^ (((x >> 7) & 1) * 0x1b));
 }
 
 ////////////////////////////// round function ///////////////////////////////////////
@@ -325,7 +320,7 @@ void decrypt8(uint8_t *rk8, uint8_t *a)
     addRoundKey(rk, a);
 }
 // 운용모드(cfb mode)
-void encrypt8_cfb(uint8_t *k, uint8_t *a, uint8_t *IV, uint8_t n)
+void encrypt8_cfb(uint8_t *k, uint8_t *IV, uint8_t *a, uint8_t n)
 {
     uint8_t c[16] = {
         0,
@@ -354,7 +349,7 @@ void encrypt8_cfb(uint8_t *k, uint8_t *a, uint8_t *IV, uint8_t n)
 
 // end 운용모드(cfb mode)
 
-void decrypt8_cfb(uint8_t *k, uint8_t *a, uint8_t *IV, uint8_t n)
+void decrypt8_cfb(uint8_t *k, uint8_t *IV, uint8_t *a, uint8_t n)
 {
     uint8_t c[32] = {
         0,
