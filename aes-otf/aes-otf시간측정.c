@@ -179,15 +179,10 @@ void otfDecKeyExpansion(uint8_t *key, int n)
     wordToByte(rk, key, 4);
 }
 
+// 8비트 말고 32비트로 처리 시 백만번 수행 기준 0.4초 더 빠름
 uint32_t x_time(uint32_t x)
 {
-
-    x = x * 0x02;
-
-    if (x > 0xff)
-        return (x & 0xff) ^ 0x1b;
-    else
-        return x;
+    return ((x << 1) ^ (((x >> 7) & 1) * 0x1b));
 }
 
 ////////////////////////////// round function ///////////////////////////////////////
@@ -354,10 +349,12 @@ int main()
     for (int j = 0; j < 1000000; j++)
         encrypt8(k, a);
     end2 = (((double)clock()) / CLOCKS_PER_SEC);
+    show8(a);
 
     start3 = (double)clock() / CLOCKS_PER_SEC;
     for (int j = 0; j < 1000000; j++)
         decrypt8(k, a);
+
     end3 = (((double)clock()) / CLOCKS_PER_SEC);
 
     end1 = (((double)clock()) / CLOCKS_PER_SEC);
@@ -365,6 +362,8 @@ int main()
     printf("저언체 수행 시간 :%lf\n", (end1 - start1));
     printf("암호화 수행 시간 :%lf\n", (end2 - start2));
     printf("복호화 수행 시간 :%lf\n", (end3 - start3));
+
+    show8(a);
 
     return 0;
 }
