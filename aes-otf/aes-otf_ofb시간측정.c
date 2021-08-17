@@ -469,8 +469,9 @@ int main()
     end2 = (((double)clock()) / CLOCKS_PER_SEC);
 
     // // // print test
-    for (int j = 0; j < blknum; j++)
-        show8(a + 16 * j);
+    // for (int j = 0; j < blknum; j++)
+    //     show8(a + 16 * j);
+    // printf("\n");
 
     start3 = (double)clock() / CLOCKS_PER_SEC;
     for (int j = 0; j < 1000; j++)
@@ -480,9 +481,9 @@ int main()
     end1 = (((double)clock()) / CLOCKS_PER_SEC);
 
     // // // print test
-    for (int j = 0; j < blknum; j++)
-        show8(a + 16 * j);
-
+    // for (int j = 0; j < blknum; j++)
+    //     show8(a + 16 * j);
+    // printf("\n");
     printf("저언체 수행 시간 :%lf\n", (end1 - start1));
     printf("암호화 수행 시간 :%lf\n", (end2 - start2));
     printf("복호화 수행 시간 :%lf\n", (end3 - start3));
