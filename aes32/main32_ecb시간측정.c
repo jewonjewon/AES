@@ -1447,7 +1447,7 @@ void encrypt32_ecb(uint32_t *k, uint32_t *a, uint64_t n)
     for (int j = 0; j < n; j++)
     {
         encrypt32(k, a + 4 * j);
-        show32(a);
+        // show32(a);
     }
 }
 
@@ -1594,13 +1594,13 @@ int main()
     for (int j = 0; j < blknum; j++)
     {
         byteToWord(a + 16 * j, a32 + 4 * j, 4);
-        show32(a32);
+        // show32(a32);
     }
     start1 = (double)clock() / CLOCKS_PER_SEC;
 
     start4 = (double)clock() / CLOCKS_PER_SEC;
     // 입력블록 확장 : 8-bit → 32-bit
-    for (int j = 0; j < 1; j++)
+    for (int j = 0; j < 100000; j++)
     {
         byteToWord(a, a32, 4);
         keyExpansion(k, rk32, 16);
@@ -1609,12 +1609,15 @@ int main()
     end4 = (((double)clock()) / CLOCKS_PER_SEC);
 
     start2 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 1; j++)
-        encrypt32_ecb(rk32, a32 +, blknum);
+    for (int j = 0; j < 100000; j++)
+        encrypt32_ecb(rk32, a32, blknum);
     end2 = (((double)clock()) / CLOCKS_PER_SEC);
-
+    // // print test
+    // for (int j = 0; j < blknum; j++)
+    //     show32(a32 + 4 * j);
+    // printf("\n");
     start3 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 1; j++)
+    for (int j = 0; j < 100000; j++)
     {
         deckeyset(rk32);
         decrypt32_ecb(rk32, a32, blknum);
@@ -1622,6 +1625,10 @@ int main()
     end3 = (((double)clock()) / CLOCKS_PER_SEC);
 
     end1 = (((double)clock()) / CLOCKS_PER_SEC);
+    // // print test
+    // for (int j = 0; j < blknum; j++)
+    //     show32(a32 + 4 * j);
+    // printf("\n");
 
     printf("저언체 수행 시간 :%lf\n", (end1 - start1));
     printf("암호화 수행 시간 :%lf\n", (end2 - start2));
