@@ -52,12 +52,12 @@ int main()
 
     start2 = (double)clock() / CLOCKS_PER_SEC;
     for (int j = 0; j < 10000; j++)
-        encrypt8_ctr(rk8, IV, a, blknum);
+        encrypt8_cbc(rk8, IV, a, blknum);
     end2 = (((double)clock()) / CLOCKS_PER_SEC);
 
     start3 = (double)clock() / CLOCKS_PER_SEC;
     for (int j = 0; j < 10000; j++)
-        encrypt8_ctr(rk8, IV, a, blknum);
+        encrypt8_cbc(rk8, IV, a, blknum);
     end3 = (((double)clock()) / CLOCKS_PER_SEC);
 
     end1 = (((double)clock()) / CLOCKS_PER_SEC);

@@ -1,3 +1,6 @@
+#ifndef __AES8_H__
+#define __AES8_H__
+
 #include <stdio.h>
 #include <stdint.h>
 
@@ -27,3 +30,5 @@ void invSubBytes(uint8_t ciphertext[]);
 void invMixColumns(uint8_t *plaintext);
 
 void decrypt8(uint8_t *rk8, uint8_t *a);
+
+#endif /* __AES8_H__ */
