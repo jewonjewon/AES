@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-void show8(uint8_t *a);
+void show8(uint8_t *state, const uint8_t blknum);
 
 void rotWord(uint32_t *temp);
 void subWord(uint32_t *temp);

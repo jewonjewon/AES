@@ -84,17 +84,11 @@ void encrypt8_ofb(uint8_t *k, uint8_t *IV, uint8_t *a, uint8_t n)
 
     for (int j = 0; j < n; j++)
     {
-        // printf("Input  ");
-        // show8(t);
+
         encrypt8(k, t);
-        // printf("Output ");
-        // show8(t);
-        // printf("plain  ");
-        // show8(a);
+
         for (int i = 0; i < 16; i++)
             *(a + (16 * j + i)) = *(a + (16 * j + i)) ^ t[i];
-        // printf("cipher ");
-        // show8(a);
     }
 }
 
@@ -112,19 +106,13 @@ void encrypt8_cfb(uint8_t *k, uint8_t *IV, uint8_t *a, uint8_t n)
 
     for (int j = 0; j < n; j++)
     {
-        // printf("Input  ");
-        // show8(c);
+
         encrypt8(k, c);
-        // printf("Output ");
-        // show8(c);
 
         for (int i = 0; i < 16; i++)
             *(a + (16 * j + i)) = *(a + (16 * j + i)) ^ c[i];
         for (int i = 0; i < 16; i++)
             c[i] = *(a + (16 * j + i));
-        // printf("Result ");
-
-        // show8(c);
     }
 }
 
@@ -143,22 +131,14 @@ void decrypt8_cfb(uint8_t *k, uint8_t *IV, uint8_t *a, uint8_t n)
     {
         for (int i = 0; i < 16; i++)
             c[16 + i] = *(a + (16 * j + i));
-        // printf("Input  ");
-        // show8(c);
-        encrypt8(k, c);
-        // printf("Output ");
-        // show8(c);
 
-        // printf("Cipher ");
-        // show8(a + (16 * j));
+        encrypt8(k, c);
 
         for (int i = 0; i < 16; i++)
             *(a + (16 * j + i)) = *(a + (16 * j + i)) ^ c[i];
 
         for (int i = 0; i < 16; i++)
             c[i] = c[16 + i];
-        // printf("Plian  ");
-        // // show8(c);
     }
 }
 
@@ -182,8 +162,6 @@ void CTR(uint8_t *t)
         else
             break;
     }
-    // printf("ctr ");
-    // show8(t);
 }
 
 // 운용모드(ctr mode)
@@ -205,24 +183,13 @@ void encrypt8_ctr(uint8_t *k, uint8_t *IV, uint8_t *a, uint8_t n)
 
     for (int j = 0; j < n; j++)
     {
-        // printf("Input  ");
-        // show8(ctr);
-
         for (int j = 0; j < 16; j++)
             ctr[j] = t[j];
 
         encrypt8(k, ctr);
 
-        // printf("Output ");
-        // show8(ctr);
-
-        // printf("Plain  ");
-        // show8(a + (16 * j));
-
         for (int i = 0; i < 16; i++)
             *(a + (16 * j + i)) = *(a + (16 * j + i)) ^ ctr[i];
-        // printf("Cipher ");
-        // show8(a + (16 * j));
 
         CTR(t);
     }

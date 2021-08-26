@@ -6,10 +6,6 @@
 
 int main()
 {
-
-    double start = 0;
-    double end = 0;
-
     // 파라미터
     uint8_t k[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
 
@@ -22,7 +18,8 @@ int main()
     uint8_t IV[16] = {
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
 
-    // 파라미터
+    uint8_t ctr[16] = {
+        0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff};
 
     uint32_t rk32[80] = {
         0,
@@ -30,23 +27,20 @@ int main()
     uint8_t rk8[300] = {
         0,
     };
+    // 파라미터
+    // cnt: 전체 시행 횟수
+    double cnt = 100000;
+    // 1: 전체 시간, 2: 암호화 시간, 3: 복호화 시간, 4: 키생성 시간
+    double start1, start2, start3, start4;
+    double end1, end2, end3, end4;
 
     uint64_t blknum = sizeof(a) / 16;
     printf("block num: %llu\n", blknum);
 
-    double start1 = 0;
-    double end1 = 0;
-    double start2 = 0;
-    double end2 = 0;
-    double start3 = 0;
-    double end3 = 0;
-    double start4 = 0;
-    double end4 = 0;
-
     start1 = (double)clock() / CLOCKS_PER_SEC;
 
     start4 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 1; j++)
+    for (int j = 0; j < cnt; j++)
     {
         keyExpansion(k, rk32, 16);
         wordToByte(rk32, rk8, 44);
@@ -54,25 +48,25 @@ int main()
     end4 = (((double)clock()) / CLOCKS_PER_SEC);
 
     start2 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 1; j++)
+    for (int j = 0; j < cnt; j++)
+        // 운용모드 넣고싶은거 넣기 ex) encrypt8_ecb |or| encrypt8_cbc |or| encrypt8_ofb |or| encrypt8_cfb |or| encrypt8_ctr
         encrypt8_cbc(rk8, IV, a, blknum);
     end2 = (((double)clock()) / CLOCKS_PER_SEC);
 
-    // // // print test
-    for (int j = 0; j < blknum; j++)
-        show8(a + 16 * j);
-    printf("\n");
+    // print test
+    show8(a, blknum);
 
     start3 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 1; j++)
+    for (int j = 0; j < cnt; j++)
+        // 운용모드 넣고싶은거 넣기 ex) decrypt8_ecb |or| decrypt8_cbc |or| encrypt8_ofb |or| decrypt8_cfb |or| encrypt8_ctr
         decrypt8_cbc(rk8, IV, a, blknum);
+
     end3 = (((double)clock()) / CLOCKS_PER_SEC);
 
     end1 = (((double)clock()) / CLOCKS_PER_SEC);
 
-    // // // print test
-    for (int j = 0; j < blknum; j++)
-        show8(a + 16 * j);
+    // print test
+    show8(a, blknum);
 
     printf("저언체 수행 시간 :%lf\n", (end1 - start1));
     printf("암호화 수행 시간 :%lf\n", (end2 - start2));

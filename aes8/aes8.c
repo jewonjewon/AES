@@ -45,41 +45,45 @@ static const uint8_t inv_sbox[256] = {
     0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
     0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d};
 
-void show8(uint8_t *a)
+void show8(uint8_t *state, const uint8_t blknum)
 {
-    printf("block: ");
-    for (int j = 0; j < 16; j++)
-        printf("%02x", a[j]);
+    for (int i = 0; i < blknum; i++)
+    {
+        printf("block: ");
+        for (int j = 0; j < 16; j++)
+            printf("%02x", state[i * 16 + j]);
+        printf("\n");
+    }
     printf("\n");
 }
 
-void rotWord(uint32_t *temp)
+void rotWord(uint32_t *tmp)
 {
 
     uint8_t t = 0;
 
-    t = *temp >> 24;
-    *temp = *temp << 8;
-    *temp = *temp | t;
+    t = *tmp >> 24;
+    *tmp = *tmp << 8;
+    *tmp = *tmp | t;
 }
 
-void subWord(uint32_t *temp)
+void subWord(uint32_t *tmp)
 {
 
-    uint8_t tt[4] = {
+    uint8_t t[4] = {
         0,
     };
 
     for (int j = 0; j < 4; j++)
-        tt[j] = (*temp << j * 8) >> 24;
+        t[j] = (*tmp << j * 8) >> 24;
 
-    *temp = sbox[tt[0]];
-    *temp = *temp << 8;
-    *temp = *temp | sbox[tt[1]];
-    *temp = *temp << 8;
-    *temp = *temp | sbox[tt[2]];
-    *temp = *temp << 8;
-    *temp = *temp | sbox[tt[3]];
+    *tmp = sbox[t[0]];
+    *tmp = *tmp << 8;
+    *tmp = *tmp | sbox[t[1]];
+    *tmp = *tmp << 8;
+    *tmp = *tmp | sbox[t[2]];
+    *tmp = *tmp << 8;
+    *tmp = *tmp | sbox[t[3]];
 }
 
 // keyExpansion(master key, round key, Nk:16 or 24 or 32)
@@ -128,7 +132,8 @@ uint32_t x_time(uint32_t x)
     return ((x << 1) ^ (((x >> 7) & 1) * 0x1b));
 }
 
-////////////////////////////// round function ///////////////////////////////////////
+/* ===== ===== ===== ===== ===== ROUND FUNCTION(ENCRYPTION) ===== ===== ===== ===== ===== */
+
 void addRoundKey(uint8_t *state, uint8_t *roundkey, uint8_t round)
 {
     for (int j = 0; j < 16; j++)
@@ -154,7 +159,7 @@ void shiftRows(uint8_t *state)
         state[j] = t[(5 * j) % 16];
 }
 
-void mixColumns(uint8_t *plaintext)
+void mixColumns(uint8_t *state)
 {
 
     uint8_t t[16] = {
@@ -163,52 +168,53 @@ void mixColumns(uint8_t *plaintext)
 
     for (int j = 0; j < 4; j++)
     {
-        t[4 * j + 0] = x_time(plaintext[4 * j + 0]) ^ (x_time(plaintext[4 * j + 1]) ^ plaintext[4 * j + 1]) ^ (plaintext[4 * j + 2]) ^ (plaintext[4 * j + 3]);
-        t[4 * j + 1] = (plaintext[4 * j + 0]) ^ x_time(plaintext[4 * j + 1]) ^ (x_time(plaintext[4 * j + 2]) ^ plaintext[4 * j + 2]) ^ (plaintext[4 * j + 3]);
-        t[4 * j + 2] = (plaintext[4 * j + 0]) ^ (plaintext[4 * j + 1]) ^ x_time(plaintext[4 * j + 2]) ^ (x_time(plaintext[4 * j + 3]) ^ plaintext[4 * j + 3]);
-        t[4 * j + 3] = (x_time(plaintext[4 * j + 0]) ^ plaintext[4 * j + 0]) ^ (plaintext[4 * j + 1]) ^ (plaintext[4 * j + 2]) ^ x_time(plaintext[4 * j + 3]);
+        t[4 * j + 0] = x_time(state[4 * j + 0]) ^ (x_time(state[4 * j + 1]) ^ state[4 * j + 1]) ^ (state[4 * j + 2]) ^ (state[4 * j + 3]);
+        t[4 * j + 1] = (state[4 * j + 0]) ^ x_time(state[4 * j + 1]) ^ (x_time(state[4 * j + 2]) ^ state[4 * j + 2]) ^ (state[4 * j + 3]);
+        t[4 * j + 2] = (state[4 * j + 0]) ^ (state[4 * j + 1]) ^ x_time(state[4 * j + 2]) ^ (x_time(state[4 * j + 3]) ^ state[4 * j + 3]);
+        t[4 * j + 3] = (x_time(state[4 * j + 0]) ^ state[4 * j + 0]) ^ (state[4 * j + 1]) ^ (state[4 * j + 2]) ^ x_time(state[4 * j + 3]);
     }
 
     for (int j = 0; j < 16; j++)
-        plaintext[j] = t[j];
+        state[j] = t[j];
 }
 
-void encrypt8(uint8_t *rk8, uint8_t *a)
+void encrypt8(uint8_t *rk8, uint8_t *state)
 {
-    addRoundKey(a, rk8, 0);
+    addRoundKey(state, rk8, 0);
 
     for (int j = 1; j < 10; j++)
     {
-        subBytes(a);
-        shiftRows(a);
-        mixColumns(a);
-        addRoundKey(a, rk8, j);
+        subBytes(state);
+        shiftRows(state);
+        mixColumns(state);
+        addRoundKey(state, rk8, j);
     }
-    subBytes(a);
-    shiftRows(a);
-    addRoundKey(a, rk8, 10);
+    subBytes(state);
+    shiftRows(state);
+    addRoundKey(state, rk8, 10);
 }
+/* ===== ===== ===== ===== ===== ROUND FUNCTION(DECRYPTION) ===== ===== ===== ===== ===== */
 
-void invShiftRows(uint8_t *ciphertext)
+void invShiftRows(uint8_t *state)
 {
     uint8_t t[16] = {
         0,
     };
 
     for (int j = 0; j < 16; j++)
-        t[j] = ciphertext[j];
+        t[j] = state[j];
 
     for (int j = 0; j < 16; j++)
-        ciphertext[j] = t[(13 * j) % 16];
+        state[j] = t[(13 * j) % 16];
 }
 
-void invSubBytes(uint8_t ciphertext[])
+void invSubBytes(uint8_t *state)
 {
     for (int j = 0; j < 16; j++)
-        ciphertext[j] = inv_sbox[ciphertext[j]];
+        state[j] = inv_sbox[state[j]];
 }
 
-void invMixColumns(uint8_t *plaintext)
+void invMixColumns(uint8_t *state)
 {
 
     uint8_t t[16] = {
@@ -217,41 +223,28 @@ void invMixColumns(uint8_t *plaintext)
 
     for (int j = 0; j < 4; j++)
     {
-        t[4 * j + 0] = (x_time((x_time(x_time(plaintext[4 * j + 0]) ^ plaintext[4 * j + 0])) ^ plaintext[4 * j + 0])) ^ (x_time(x_time(x_time(plaintext[4 * j + 1])) ^ plaintext[4 * j + 1]) ^ plaintext[4 * j + 1]) ^ (x_time(x_time(x_time(plaintext[4 * j + 2]) ^ plaintext[4 * j + 2])) ^ plaintext[4 * j + 2]) ^ (x_time(x_time(x_time(plaintext[4 * j + 3]))) ^ plaintext[4 * j + 3]);
-        t[4 * j + 1] = (x_time(x_time(x_time(plaintext[4 * j + 0]))) ^ plaintext[4 * j + 0]) ^ (x_time((x_time(x_time(plaintext[4 * j + 1]) ^ plaintext[4 * j + 1])) ^ plaintext[4 * j + 1])) ^ (x_time(x_time(x_time(plaintext[4 * j + 2])) ^ plaintext[4 * j + 2]) ^ plaintext[4 * j + 2]) ^ (x_time(x_time(x_time(plaintext[4 * j + 3]) ^ plaintext[4 * j + 3])) ^ plaintext[4 * j + 3]);
-        t[4 * j + 2] = (x_time(x_time(x_time(plaintext[4 * j + 0]) ^ plaintext[4 * j + 0])) ^ plaintext[4 * j + 0]) ^ (x_time(x_time(x_time(plaintext[4 * j + 1]))) ^ plaintext[4 * j + 1]) ^ (x_time((x_time(x_time(plaintext[4 * j + 2]) ^ plaintext[4 * j + 2])) ^ plaintext[4 * j + 2])) ^ (x_time(x_time(x_time(plaintext[4 * j + 3])) ^ plaintext[4 * j + 3]) ^ plaintext[4 * j + 3]);
-        t[4 * j + 3] = (x_time(x_time(x_time(plaintext[4 * j + 0])) ^ plaintext[4 * j + 0]) ^ plaintext[4 * j + 0]) ^ (x_time(x_time(x_time(plaintext[4 * j + 1]) ^ plaintext[4 * j + 1])) ^ plaintext[4 * j + 1]) ^ (x_time(x_time(x_time(plaintext[4 * j + 2]))) ^ plaintext[4 * j + 2]) ^ (x_time((x_time(x_time(plaintext[4 * j + 3]) ^ plaintext[4 * j + 3])) ^ plaintext[4 * j + 3]));
+        t[4 * j + 0] = (x_time((x_time(x_time(state[4 * j + 0]) ^ state[4 * j + 0])) ^ state[4 * j + 0])) ^ (x_time(x_time(x_time(state[4 * j + 1])) ^ state[4 * j + 1]) ^ state[4 * j + 1]) ^ (x_time(x_time(x_time(state[4 * j + 2]) ^ state[4 * j + 2])) ^ state[4 * j + 2]) ^ (x_time(x_time(x_time(state[4 * j + 3]))) ^ state[4 * j + 3]);
+        t[4 * j + 1] = (x_time(x_time(x_time(state[4 * j + 0]))) ^ state[4 * j + 0]) ^ (x_time((x_time(x_time(state[4 * j + 1]) ^ state[4 * j + 1])) ^ state[4 * j + 1])) ^ (x_time(x_time(x_time(state[4 * j + 2])) ^ state[4 * j + 2]) ^ state[4 * j + 2]) ^ (x_time(x_time(x_time(state[4 * j + 3]) ^ state[4 * j + 3])) ^ state[4 * j + 3]);
+        t[4 * j + 2] = (x_time(x_time(x_time(state[4 * j + 0]) ^ state[4 * j + 0])) ^ state[4 * j + 0]) ^ (x_time(x_time(x_time(state[4 * j + 1]))) ^ state[4 * j + 1]) ^ (x_time((x_time(x_time(state[4 * j + 2]) ^ state[4 * j + 2])) ^ state[4 * j + 2])) ^ (x_time(x_time(x_time(state[4 * j + 3])) ^ state[4 * j + 3]) ^ state[4 * j + 3]);
+        t[4 * j + 3] = (x_time(x_time(x_time(state[4 * j + 0])) ^ state[4 * j + 0]) ^ state[4 * j + 0]) ^ (x_time(x_time(x_time(state[4 * j + 1]) ^ state[4 * j + 1])) ^ state[4 * j + 1]) ^ (x_time(x_time(x_time(state[4 * j + 2]))) ^ state[4 * j + 2]) ^ (x_time((x_time(x_time(state[4 * j + 3]) ^ state[4 * j + 3])) ^ state[4 * j + 3]));
     }
     for (int j = 0; j < 16; j++)
-        plaintext[j] = t[j];
+        state[j] = t[j];
 }
 
-void decrypt8(uint8_t *rk8, uint8_t *a)
+void decrypt8(uint8_t *rk8, uint8_t *state)
 {
-    addRoundKey(a, rk8, 10);
-    // show8(a);
+    addRoundKey(state, rk8, 10);
 
     for (int r = 9; r > 0; r--)
     {
-        invShiftRows(a);
-        // show8(a);
-
-        invSubBytes(a);
-        // show8(a);
-
-        addRoundKey(a, rk8, r);
-        // show8(a);
-
-        invMixColumns(a);
-        // show8(a);
+        invShiftRows(state);
+        invSubBytes(state);
+        addRoundKey(state, rk8, r);
+        invMixColumns(state);
     }
 
-    invShiftRows(a);
-    // show8(a);
-
-    invSubBytes(a);
-    // show8(a);
-
-    addRoundKey(a, rk8, 0);
-    // show8(a);
+    invShiftRows(state);
+    invSubBytes(state);
+    addRoundKey(state, rk8, 0);
 }

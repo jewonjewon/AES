@@ -1,8 +1,10 @@
-# aes8
+# Block Cipher AES
 
 AES 8-bit, AES 32-bit, AES-OTF 코드
 
 운용모드: ECB, CBC, OFB, CFB, CTR 지원
+
+운용모드 출력값 검증 확인 사이트: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
 
 패딩 : PKCS#7 추가 예정.
 
