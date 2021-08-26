@@ -109,8 +109,9 @@ void subWord(uint32_t *tmp)
 void otfEncKeyGen(uint8_t *key, int n)
 {
     if (n == 0)
+    {
         return;
-
+    }
     uint32_t rk[4] = {
         0,
     };
@@ -133,12 +134,6 @@ void otfEncKeyGen(uint8_t *key, int n)
     rk[3] = tt32[3] ^ rk[2];
 
     wordToByte(rk, key, 4);
-
-    printf("OTF ENC KEY GEN\n");
-    printf("w[0]: %08x\n", rk[0]);
-    printf("w[1]: %08x\n", rk[1]);
-    printf("w[2]: %08x\n", rk[2]);
-    printf("w[3]: %08x\n", rk[3]);
 }
 
 void otfDecKeyGen(uint8_t *key, int n)
@@ -171,11 +166,6 @@ void otfDecKeyGen(uint8_t *key, int n)
     t = t ^ rcon[n];
 
     rk[0] = tt32[0] ^ t;
-
-    printf("w[0]: %08x\n", rk[0]);
-    printf("w[1]: %08x\n", rk[1]);
-    printf("w[2]: %08x\n", rk[2]);
-    printf("w[3]: %08x\n", rk[3]);
 
     wordToByte(rk, key, 4);
 }
@@ -241,7 +231,6 @@ void encrypt8(uint8_t *rk8, uint8_t *a)
 
     for (int j = 0; j < 16; j++)
         rk[j] = rk8[j];
-
     otfEncKeyGen(rk, 0);
     addRoundKey(rk, a);
 
@@ -253,6 +242,7 @@ void encrypt8(uint8_t *rk8, uint8_t *a)
         otfEncKeyGen(rk, j);
         addRoundKey(rk, a);
     }
+
     subBytes(a);
     shiftRows(a);
     otfEncKeyGen(rk, 10);
@@ -318,6 +308,7 @@ void decrypt8(uint8_t *rk8, uint8_t *a)
         addRoundKey(rk, a);
         invMixColumns(a);
     }
+
     invShiftRows(a);
     invSubBytes(a);
     otfDecKeyGen(rk, 0);

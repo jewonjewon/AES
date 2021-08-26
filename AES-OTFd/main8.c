@@ -35,13 +35,12 @@ int main()
     /* ===== ===== ===== ===== ===== ECB MODE ===== ===== ===== ===== ===== */
 
     // start Encryption
-    encrypt8_ecb(rk8, a, blknum);
-
+    encrypt8_ecb(k, a, blknum);
     // print test
     show8(a, blknum);
 
     // start Decryption
-    decrypt8_ecb(rk8, a, blknum);
+    decrypt8_ecb(k, a, blknum);
 
     // print test
     show8(a, blknum);

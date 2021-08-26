@@ -4,6 +4,7 @@
         "__wmmintrin_aes.h": "c",
         "emmintrin.h": "c",
         "__wmmintrin_pclmul.h": "c",
-        "aes8.h": "c"
+        "aes8.h": "c",
+        "stdio.h": "c"
     }
 }
