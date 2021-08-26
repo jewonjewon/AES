@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "aes8.h"
 
 void encrypt8_ecb(uint8_t *k, uint8_t *a, uint64_t n);
 void decrypt8_ecb(uint8_t *k, uint8_t *a, uint64_t n);
