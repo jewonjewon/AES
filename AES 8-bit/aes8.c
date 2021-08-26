@@ -1,3 +1,6 @@
+#ifndef __AES8_H__
+#define __AES8_H__
+
 #include <stdio.h>
 #include <stdint.h>
 
@@ -278,4 +281,3 @@ void decrypt8(uint8_t *rk8, uint8_t *a)
     addRoundKey(a, rk8, 0);
     // show8(a);
 }
-// 운용모드(ecb mode)
