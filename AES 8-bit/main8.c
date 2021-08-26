@@ -20,7 +20,8 @@ int main()
         0xf6, 0x9f, 0x24, 0x45, 0xdf, 0x4f, 0x9b, 0x17, 0xad, 0x2b, 0x41, 0x7b, 0xe6, 0x6c, 0x37, 0x10};
 
     uint8_t IV[16] = {
-        0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff};
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+
     // 파라미터
 
     uint32_t rk32[80] = {
@@ -45,7 +46,7 @@ int main()
     start1 = (double)clock() / CLOCKS_PER_SEC;
 
     start4 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 10000; j++)
+    for (int j = 0; j < 1; j++)
     {
         keyExpansion(k, rk32, 16);
         wordToByte(rk32, rk8, 44);
@@ -53,19 +54,26 @@ int main()
     end4 = (((double)clock()) / CLOCKS_PER_SEC);
 
     start2 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 10000; j++)
+    for (int j = 0; j < 1; j++)
         encrypt8_cbc(rk8, IV, a, blknum);
     end2 = (((double)clock()) / CLOCKS_PER_SEC);
 
+    // // // print test
+    for (int j = 0; j < blknum; j++)
+        show8(a + 16 * j);
+    printf("\n");
+
     start3 = (double)clock() / CLOCKS_PER_SEC;
-    for (int j = 0; j < 10000; j++)
-        encrypt8_cbc(rk8, IV, a, blknum);
+    for (int j = 0; j < 1; j++)
+        decrypt8_cbc(rk8, IV, a, blknum);
     end3 = (((double)clock()) / CLOCKS_PER_SEC);
 
     end1 = (((double)clock()) / CLOCKS_PER_SEC);
+
     // // // print test
-    // for (int j = 0; j < blknum; j++)
-    //     show8(a + 16 * j);
+    for (int j = 0; j < blknum; j++)
+        show8(a + 16 * j);
+
     printf("저언체 수행 시간 :%lf\n", (end1 - start1));
     printf("암호화 수행 시간 :%lf\n", (end2 - start2));
     printf("복호화 수행 시간 :%lf\n", (end3 - start3));

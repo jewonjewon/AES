@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "mode8.h"
+
 // 운용모드(ecb mode)
 
 // encrypt8_ecb(128비트 마스터키, 128비트 평문, 평문의 블록 길이)

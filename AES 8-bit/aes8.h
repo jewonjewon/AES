@@ -1,10 +1,9 @@
-#ifdef __AES8_H__
+// #pragma once
+#ifndef __AES8_H__
 #define __AES8_H__
 
 #include <stdio.h>
 #include <stdint.h>
-
-void CTR(uint8_t *t);
 
 void show8(uint8_t *a);
 
