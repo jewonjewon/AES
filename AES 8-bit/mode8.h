@@ -1,4 +1,4 @@
-#ifndef __MODE8_H__
+#ifdef __MODE8_H__
 #define __MODE8_H__
 
 #include <stdlib.h>

@@ -1,4 +1,4 @@
-#ifndef __AES8_H__
+#ifdef __AES8_H__
 #define __AES8_H__
 
 #include <stdio.h>

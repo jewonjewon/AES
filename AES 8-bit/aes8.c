@@ -1,6 +1,3 @@
-#ifndef __AES8_H__
-#define __AES8_H__
-
 #include <stdio.h>
 #include <stdint.h>
 
