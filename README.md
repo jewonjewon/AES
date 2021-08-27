@@ -1,6 +1,6 @@
 # Block Cipher AES
 
-AES 8-bit, AES 32-bit, AES-OTF 코드
+AES 8-bit, AES 32-bit, AES-OTF
 
 운용모드: ECB, CBC, OFB, CFB, CTR 지원
 
