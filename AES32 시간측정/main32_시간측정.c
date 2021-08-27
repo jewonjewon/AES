@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>
-#include "aes8.h"
-#include "mode8.h"
+
+#include "aes32.h"
+#include "mode32.h"
 
 int main()
 {
@@ -24,12 +25,21 @@ int main()
     uint32_t rk32[80] = {
         0,
     };
-    uint8_t rk8[300] = {
+
+    uint32_t a32[10000] = {
+        0,
+    };
+
+    uint32_t IV32[4] = {
+        0,
+    };
+    uint32_t ctr32[4] = {
         0,
     };
     // 파라미터
-    // cnt: 전체 시행 횟수
+
     double cnt = 100000;
+
     // 1: 전체 시간, 2: 암호화 시간, 3: 복호화 시간, 4: 키생성 시간
     double start1, start2, start3, start4;
     double end1, end2, end3, end4;
@@ -37,36 +47,40 @@ int main()
     uint64_t blknum = sizeof(a) / 16;
     printf("block num: %llu\n", blknum);
 
+    for (int j = 0; j < blknum; j++)
+        byteToWord(a + 16 * j, a32 + 4 * j, 4);
+
+    byteToWord(IV, IV32, 4);
+    byteToWord(ctr, ctr32, 4);
+
     start1 = (double)clock() / CLOCKS_PER_SEC;
 
     start4 = (double)clock() / CLOCKS_PER_SEC;
+    // 입력블록 확장 : 8-bit → 32-bit
     for (int j = 0; j < cnt; j++)
-    {
         keyExpansion(k, rk32, 16);
-        wordToByte(rk32, rk8, 44);
-    }
+
     end4 = (((double)clock()) / CLOCKS_PER_SEC);
 
     start2 = (double)clock() / CLOCKS_PER_SEC;
     for (int j = 0; j < cnt; j++)
-        // 운용모드 넣고싶은거 넣기 ex) encrypt8_ecb |or| encrypt8_cbc |or| encrypt8_ofb |or| encrypt8_cfb |or| encrypt8_ctr
-        encrypt8_cbc(rk8, IV, a, blknum);
+        encrypt32_ecb(rk32, a32, blknum);
     end2 = (((double)clock()) / CLOCKS_PER_SEC);
 
     // print test
-    show8(a, blknum);
+    // show32(a32, blknum);
 
     start3 = (double)clock() / CLOCKS_PER_SEC;
+
     for (int j = 0; j < cnt; j++)
-        // 운용모드 넣고싶은거 넣기 ex) decrypt8_ecb |or| decrypt8_cbc |or| encrypt8_ofb |or| decrypt8_cfb |or| encrypt8_ctr
-        decrypt8_cbc(rk8, IV, a, blknum);
+        decrypt32_ecb(rk32, a32, blknum);
 
     end3 = (((double)clock()) / CLOCKS_PER_SEC);
 
     end1 = (((double)clock()) / CLOCKS_PER_SEC);
 
     // print test
-    show8(a, blknum);
+    // show32(a32, blknum);
 
     printf("%.0f번 수행 기준\n\n", cnt);
 
@@ -74,5 +88,6 @@ int main()
     printf("암호화 수행 시간 :%lf\n", (end2 - start2));
     printf("복호화 수행 시간 :%lf\n", (end3 - start3));
     printf("키생성 수행 시간 :%lf\n", (end4 - start4));
+
     return 0;
 }

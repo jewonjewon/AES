@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "mode8.h"
+#include "mode32.h"
 
 void encrypt32_ecb(uint32_t *k, uint32_t *a, uint64_t n)
 {

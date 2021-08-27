@@ -55,6 +55,8 @@ int main()
 
     show8(a, blknum);
 
+    printf("%.0f번 수행 기준\n\n", cnt);
+
     printf("저언체 수행 시간 :%lf\n", (end1 - start1));
     printf("암호화 수행 시간 :%lf\n", (end2 - start2));
     printf("복호화 수행 시간 :%lf\n", (end3 - start3));
