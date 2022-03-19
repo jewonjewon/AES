@@ -59,7 +59,6 @@ void show8(uint8_t *state, const uint8_t blknum)
 
 void rotWord(uint32_t *tmp)
 {
-
     uint8_t t = 0;
 
     t = *tmp >> 24;
@@ -69,7 +68,6 @@ void rotWord(uint32_t *tmp)
 
 void subWord(uint32_t *tmp)
 {
-
     uint8_t t[4] = {
         0,
     };
