@@ -80,10 +80,15 @@ void key_expansion(word *rk, byte *k)
         if (i % l == 0)
         {
             rot_word(&t);
+            printf("rwrd = %x\n", t);
             sub_word(&t);
-            t ^= rcon[(i / 4) - 1];
+            printf("swrd = %x\n", t);
+            t ^= rcon[(i / l) - 1];
+            printf("iiii = %d\n", i);
+            printf("eeee = %x\n", rcon[(i / l) - 1]);
+            printf("rcon = %x\n", t);
         }
-        else if (l > 6 and i % 4 == 4)
+        else if (l > 6 and i % l == 4)
             sub_word(&t);
 
         rk[i] = rk[i - l] ^ t;
@@ -103,7 +108,7 @@ void sub_bytes(byte *state)
 }
 
 /* 천만번 수행 기준 약 0.7초 걸림 */
-extern inline void shift_row(byte *state)
+void shift_row(byte *state)
 {
     byte t;
 
@@ -196,7 +201,6 @@ void inv_mix_columns(byte *state)
         t[4 * j + 2] = gmul_d[state[4 * j + 0]] ^ gmul_9[state[4 * j + 1]] ^ gmul_e[state[4 * j + 2]] ^ gmul_b[state[4 * j + 3]];
         t[4 * j + 3] = gmul_b[state[4 * j + 0]] ^ gmul_d[state[4 * j + 1]] ^ gmul_9[state[4 * j + 2]] ^ gmul_e[state[4 * j + 3]];
     }
-
     copy_state(state, t);
 }
 
@@ -207,7 +211,7 @@ void aes_encrypt(byte *c, byte *p, byte *rk)
 
     addroundkey(t, rk);
 
-    for (int r = 1; r < 10; r++)
+    for (int r = 1; r < Nr; r++)
     {
         sub_bytes(t);
         shift_row(t);
@@ -217,7 +221,7 @@ void aes_encrypt(byte *c, byte *p, byte *rk)
 
     sub_bytes(t);
     shift_row(t);
-    addroundkey(t, rk + 160);
+    addroundkey(t, rk + (16 * Nr));
 
     copy_state(c, t);
 }
@@ -227,9 +231,9 @@ void aes_decrypt(byte *p, byte *c, byte *rk)
     byte t[16];
     copy_state(t, c);
 
-    addroundkey(t, rk + 160);
+    addroundkey(t, rk + (16 * Nr));
 
-    for (int r = 9; r > 0; r--)
+    for (int r = Nr - 1; r > 0; r--)
     {
         inv_shift_row(t);
         inv_sub_bytes(t);

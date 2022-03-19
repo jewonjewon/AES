@@ -10,7 +10,7 @@ typedef unsigned int word;
 #define newline printf("\n")
 #define check printf("?????\n")
 
-#define block_len 128
+#define block_len 256
 #define Nb 16
 
 #if block_len == 128
@@ -189,7 +189,7 @@ void key_expansion(word *rk, byte *k);
 /* Round Function(Encryption) */
 void addroundkey(byte *state, byte *rk);
 void sub_bytes(byte *state);
-extern inline void shift_row(byte *state);
+void shift_row(byte *state);
 void mix_columns(byte *state);
 
 /* Round Function(Decryption) */
