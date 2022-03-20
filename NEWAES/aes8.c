@@ -68,7 +68,6 @@ void sub_word(word *t)
 void key_expansion(word *rk, byte *k)
 {
     word t;
-    int l = Nk / 4;
 
     for (int i = 0; i < l; i++)
         byte_to_word(rk + i, k + (4 * i));
@@ -80,13 +79,8 @@ void key_expansion(word *rk, byte *k)
         if (i % l == 0)
         {
             rot_word(&t);
-            printf("rwrd = %x\n", t);
             sub_word(&t);
-            printf("swrd = %x\n", t);
             t ^= rcon[(i / l) - 1];
-            printf("iiii = %d\n", i);
-            printf("eeee = %x\n", rcon[(i / l) - 1]);
-            printf("rcon = %x\n", t);
         }
         else if (l > 6 and i % l == 4)
             sub_word(&t);

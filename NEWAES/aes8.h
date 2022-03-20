@@ -10,18 +10,21 @@ typedef unsigned int word;
 #define newline printf("\n")
 #define check printf("?????\n")
 
-#define block_len 256
+#define key_size 256
 #define Nb 16
 
-#if block_len == 128
+#if key_size == 128
 #define Nk 16
 #define Nr 10
-#elif block_len == 192
+#define l 4
+#elif key_size == 192
 #define Nk 24
 #define Nr 12
-#elif block_len == 256
+#define l 6
+#elif key_size == 256
 #define Nk 32
 #define Nr 14
+#define l 8
 #endif
 
 static const word rcon[10] = {

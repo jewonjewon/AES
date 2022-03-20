@@ -81,7 +81,7 @@ void time_measurement_aes_enc(void (*func)(byte *, byte *, byte *), byte *rk8, i
     }
     end = (((double)clock()) / CLOCKS_PER_SEC);
 
-    printf("수행 시간(%d번 기준) :%lf\n", cnt, (end - start));
+    printf("Enc 수행 시간(%d번 기준) :%lf\n", cnt, (end - start));
 }
 
 void time_measurement_aes_dec(void (*func)(byte *, byte *, byte *), byte *rk8, int cnt)
@@ -100,7 +100,7 @@ void time_measurement_aes_dec(void (*func)(byte *, byte *, byte *), byte *rk8, i
     }
     end = (((double)clock()) / CLOCKS_PER_SEC);
 
-    printf("수행 시간(%d번 기준) :%lf\n", cnt, (end - start));
+    printf("Dec 수행 시간(%d번 기준) :%lf\n", cnt, (end - start));
 }
 
 void time_measurement_key_expansion(void (*func)(word *, byte *), int cnt)
@@ -124,5 +124,5 @@ void time_measurement_key_expansion(void (*func)(word *, byte *), int cnt)
     }
     end = (((double)clock()) / CLOCKS_PER_SEC);
 
-    printf("수행 시간(%d번 기준) :%lf\n", cnt, (end - start));
+    printf("KeyGen 수행 시간(%d번 기준) :%lf\n", cnt, (end - start));
 }
