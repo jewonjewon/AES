@@ -6,8 +6,4 @@ AES 8-bit, AES 32-bit, AES-OTF
 
 운용모드 출력값 검증 확인 사이트: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
 
-패딩 : PKCS#7 추가 예정.
-
-국민대학교 정보보안암호수학과 이제원
-
 2021.08.26
